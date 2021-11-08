@@ -1,10 +1,12 @@
 import sys
+import random
 import pygame
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP
 from config import *
 from button import Button
 from grass import Grass
 from dirt import Dirt
+from leaf import Leaf
 
 
 class Game:
@@ -66,8 +68,11 @@ class Game:
         self.menu_running = False
         self.game_running = True
 
+        spawn_leaf_event = pygame.USEREVENT + 1
+
         outer_blocks = pygame.sprite.Group()
         inner_blocks = pygame.sprite.Group()
+        leaves = []
 
         with open("map.txt", "r") as map_file:
             data = map_file.read()
@@ -85,6 +90,8 @@ class Game:
         all_sprites = pygame.sprite.Group()
         all_sprites.add(inner_blocks, outer_blocks)
 
+        pygame.time.set_timer(spawn_leaf_event, 300)
+
         while self.game_running:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -97,11 +104,24 @@ class Game:
                         self.game_running = False
                         self.show_menu()
 
+                if event.type == spawn_leaf_event:
+                    leaf = Leaf()
+                    leaves.append(leaf)
+
             self.screen.fill(BLACK)
 
             for entity in all_sprites:
                 entity.update()
                 self.screen.blit(entity.image, entity.rect)
+
+            print(len(leaves))
+
+            for leaf in leaves:
+                leaf.update()
+                self.screen.blit(leaf.image, leaf.rect)
+
+                if leaf.rect.y > SCREEN_SIZE[1]:
+                    leaves.remove(leaf)
 
             pygame.display.flip()
             self.clock.tick(FPS)
