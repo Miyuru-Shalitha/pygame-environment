@@ -92,6 +92,9 @@ class Game:
 
         pygame.time.set_timer(spawn_leaf_event, 300)
 
+        wind_speed = 0
+        reversed_wind = False
+
         while self.game_running:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -115,9 +118,17 @@ class Game:
                 self.screen.blit(entity.image, entity.rect)
 
             print(len(leaves))
+            if reversed_wind:
+                wind_speed += 0.01
+                if wind_speed > 10:
+                    reversed_wind = False
+            else:
+                wind_speed -= 0.01
+                if wind_speed < -10:
+                    reversed_wind = True
 
             for leaf in leaves:
-                leaf.update()
+                leaf.update(wind_speed)
                 self.screen.blit(leaf.image, leaf.rect)
 
                 if leaf.rect.y > SCREEN_SIZE[1]:

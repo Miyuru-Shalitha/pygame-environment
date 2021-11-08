@@ -12,6 +12,10 @@ class Leaf(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = random.randint(0, SCREEN_SIZE[0])
         self.rect.y = 0
+        self.x_change = 0
 
-    def update(self):
+    def update(self, wind_speed):
         self.rect.y += 5
+        self.rect.x += self.x_change
+
+        self.x_change = wind_speed + random.uniform(-1, 1)
