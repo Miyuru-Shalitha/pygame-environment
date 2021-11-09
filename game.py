@@ -1,7 +1,8 @@
 import sys
 import random
 import pygame
-from pygame.locals import QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP
+from functools import wraps
+from pygame.locals import QUIT, KEYDOWN, KEYUP, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_s
 from config import *
 from button import Button
 from grass import Grass
@@ -27,10 +28,11 @@ class Game:
         self.menu_running = True
         click = False
 
-        start_button = Button(SCREEN_SIZE[0] // 2, SCREEN_SIZE[1] // 2, 150, 75)
+        start_button = Button(x=(SCREEN_SIZE[0] // 2), y=(SCREEN_SIZE[1] // 2), width=150, height=75, func=self.start)
+        level_editor_button = Button(x=100, y=65, width=150, height=75, func=self.show_level_editor)
 
         buttons = pygame.sprite.Group()
-        buttons.add(start_button)
+        buttons.add(start_button, level_editor_button)
 
         while self.menu_running:
             for event in pygame.event.get():
@@ -58,13 +60,13 @@ class Game:
             mouse_x, mouse_y = pygame.mouse.get_pos()
 
             for button in buttons:
-                button.update((mouse_x, mouse_y), click, self.start)
+                button.update((mouse_x, mouse_y), click)
                 self.screen.blit(button.image, button.rect)
 
             pygame.display.flip()
             self.clock.tick(FPS)
 
-    def start(self):
+    def start(self, level_editor_func=None):
         self.menu_running = False
         self.game_running = True
 
@@ -81,10 +83,10 @@ class Game:
             for i, tiles in enumerate(data):
                 for j, tile in enumerate(tiles):
                     if tile == "G":
-                        grass_block = Grass(j, i, TILE_SIZE[0], TILE_SIZE[1])
+                        grass_block = Grass(x=j, y=i, width=TILE_SIZE[0], height=TILE_SIZE[1])
                         outer_blocks.add(grass_block)
                     elif tile == "D":
-                        dirt_block = Dirt(j, i, TILE_SIZE[0], TILE_SIZE[1])
+                        dirt_block = Dirt(x=j, y=i, width=TILE_SIZE[0], height=TILE_SIZE[1])
                         inner_blocks.add(dirt_block)
 
         all_sprites = pygame.sprite.Group()
@@ -97,7 +99,15 @@ class Game:
 
         # t1 = pygame.time.get_ticks()
 
+        is_clicked = False
+        s_pressed = False
+
         while self.game_running:
+            # if is_clicked:
+            #     is_clicked = False
+            if s_pressed:
+                s_pressed = False
+
             # t2 = pygame.time.get_ticks()
             # delta_time = (t2 - t1) / 10
             # t1 = t2
@@ -116,14 +126,28 @@ class Game:
                     if event.key == K_ESCAPE:
                         self.game_running = False
                         self.show_menu()
+                    if event.key == K_s:
+                        s_pressed = True
+
+                if event.type == KEYUP:
+                    if event.key == K_s:
+                        s_pressed = False
 
                 if event.type == spawn_leaf_event:
                     leaf = Leaf(outer_blocks)
                     leaves.append(leaf)
 
+                if event.type == MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        is_clicked = True
+
+                if event.type == MOUSEBUTTONUP:
+                    if event.button == 1:
+                        is_clicked = False
+
             self.screen.fill(BLACK)
 
-            # FPS TEXT
+            # FPS TEXT #########################################
             text_surface = self.font.render(f"FPS: {round(self.clock.get_fps())}", False, WHITE)
             self.screen.blit(text_surface, (10, 10))
             ####################################################
@@ -132,7 +156,7 @@ class Game:
                 entity.update()
                 self.screen.blit(entity.image, entity.rect)
 
-            print(len(leaves))
+            # print(len(leaves))
             if reversed_wind:
                 wind_speed += 0.01
                 if wind_speed > 10:
@@ -149,5 +173,43 @@ class Game:
                 if leaf.rect.y > SCREEN_SIZE[1]:
                     leaves.remove(leaf)
 
+            # DEV only #############################
+            if level_editor_func is not None:
+                level_editor_func(is_clicked, s_pressed, all_sprites, outer_blocks, inner_blocks)
+            ########################################
+
             pygame.display.flip()
             self.clock.tick(FPS)
+
+    def show_level_editor(self):
+        with open("map.txt", "r") as map_file:
+            prev_data = map_file.read()
+            prev_data = prev_data.split("\n")
+            prev_map_data = []
+
+            for row in prev_data:
+                tile = list(row)
+                prev_map_data.append(tile)
+
+        def level_editor(is_clicked, s_pressed, all_sprites, outer_blocks, inner_blocks):
+            if is_clicked:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                tile_position = (mouse_x // TILE_SIZE[0], mouse_y // TILE_SIZE[0])
+                print("Tile", prev_map_data[tile_position[1]][tile_position[0]])
+
+                grass = Grass(x=tile_position[0], y=tile_position[1], width=TILE_SIZE[0], height=TILE_SIZE[0])
+                outer_blocks.add(grass)
+                all_sprites.add(grass)
+                prev_map_data[tile_position[1]][tile_position[0]] = "G"
+
+            if s_pressed:
+                new_data = []
+                for row_list in prev_map_data:
+                    row_string = "".join(row_list)
+                    new_data.append(row_string)
+
+                new_map_string = "\n".join(new_data)
+                with open("map.txt", "w") as new_map_file:
+                    new_map_file.write(new_map_string)
+
+        self.start(level_editor_func=level_editor)
