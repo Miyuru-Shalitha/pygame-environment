@@ -12,11 +12,11 @@ from leaf import Leaf
 class Game:
     def __init__(self):
         pygame.init()
-        # pygame.font.init()
+        pygame.font.init()
         self.clock = pygame.time.Clock()
         self.screen_size = SCREEN_SIZE
         self.screen = pygame.display.set_mode(self.screen_size)
-        # self.font = pygame.font.SysFont("fonts/PermanentMarker-Reguler.ttf", 32)
+        self.font = pygame.font.SysFont("fonts/PermanentMarker-Reguler.ttf", 32)
         self.menu_running = False
         self.game_running = False
 
@@ -112,6 +112,11 @@ class Game:
                     leaves.append(leaf)
 
             self.screen.fill(BLACK)
+
+            # FPS TEXT
+            text_surface = self.font.render(f"FPS: {round(self.clock.get_fps())}", False, WHITE)
+            self.screen.blit(text_surface, (10, 10))
+            ####################################################
 
             for entity in all_sprites:
                 entity.update()
