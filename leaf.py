@@ -9,7 +9,7 @@ class Leaf(pygame.sprite.Sprite, ColliderMixin):
         super().__init__()
         super(pygame.sprite.Sprite, self).__init__(self, outer_blocks)
         self.image = pygame.image.load("images/leaf.png").convert()
-        self.image = pygame.transform.scale(self.image, (20, 20))
+        self.image = pygame.transform.scale(self.image, (25 * UNIT_X, 25 * UNIT_Y))
         self.image = pygame.transform.rotate(self.image, random.randint(0, 360))
         self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
@@ -23,7 +23,7 @@ class Leaf(pygame.sprite.Sprite, ColliderMixin):
     def update(self, delta_time, wind_speed, leaves):
         collisions = self.apply_collisions()
         if collisions["bottom_collide"]:
-            self.apply_x_change(delta_time, wind_speed, 0.1)
+            self.apply_x_change(delta_time, wind_speed, 0.2)
             self.can_remove_counter += 1
 
             if self.can_remove_counter > 100:
@@ -33,8 +33,8 @@ class Leaf(pygame.sprite.Sprite, ColliderMixin):
         self.apply_x_change(delta_time, wind_speed, 1)
 
     def apply_x_change(self, delta_time, wind_speed, control_x_change):
-        self.rect.y += 400 * delta_time
-        self.rect.x += self.x_change * delta_time * control_x_change
+        self.rect.y += 400 * delta_time * UNIT_Y
+        self.rect.x += self.x_change * delta_time * control_x_change * UNIT_X
 
         if self.x_val_reverse:
             self.temp_x_val += 5

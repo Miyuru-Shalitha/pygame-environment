@@ -28,8 +28,11 @@ class Game:
         self.menu_running = True
         click = False
 
-        start_button = Button(x=(SCREEN_SIZE[0] // 2), y=(SCREEN_SIZE[1] // 2), width=150, height=75, func=self.start)
-        level_editor_button = Button(x=100, y=65, width=150, height=75, func=self.show_level_editor)
+        start_button = Button(x=(SCREEN_SIZE[0] // 2) - (100 * UNIT_X), y=((SCREEN_SIZE[1] // 2) - 50 * UNIT_Y),
+                              width=(200 * UNIT_X),
+                              height=(100 * UNIT_Y), func=self.start)
+        level_editor_button = Button(x=200 * UNIT_X, y=200 * UNIT_Y, width=(200 * UNIT_X), height=(100 * UNIT_Y),
+                                     func=self.show_level_editor)
 
         buttons = pygame.sprite.Group()
         buttons.add(start_button, level_editor_button)

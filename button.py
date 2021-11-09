@@ -9,8 +9,10 @@ class Button(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/start-button.png").convert()
         self.image = pygame.transform.scale(self.image, (width, height))
         self.rect = self.image.get_rect()
-        self.rect.centerx = x
-        self.rect.centery = y
+        # self.rect.centerx = x
+        # self.rect.centery = y
+        self.rect.x = x
+        self.rect.y = y
         self.mouse_down_flag = 0
 
     def update(self, mouse_pos, is_clicked):
