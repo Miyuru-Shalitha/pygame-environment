@@ -1,13 +1,16 @@
 import sys
 import random
+import json
+import math
 import pygame
 from functools import wraps
-from pygame.locals import QUIT, KEYDOWN, KEYUP, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_s, K_g, K_d
+from pygame.locals import QUIT, KEYDOWN, KEYUP, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_s, K_g, K_d, K_t
 from config import *
 from button import Button
 from grass import Grass
 from dirt import Dirt
 from leaf import Leaf
+from tree import Tree
 
 
 class Game:
@@ -77,7 +80,17 @@ class Game:
 
         outer_blocks = pygame.sprite.Group()
         inner_blocks = pygame.sprite.Group()
+        background_sprites = pygame.sprite.Group()
         leaves = []
+
+        with open("background.json", "r") as background_file:
+            data = json.load(background_file)
+
+            for obj in data:
+                if obj["sprite_name"] == "tree":
+                    sprite = Tree(x=obj["x_coord"] * UNIT_X, y=obj["y_coord"] * UNIT_Y, width=obj["width"] * UNIT_X,
+                                  height=obj["height"] * UNIT_Y)
+                    background_sprites.add(sprite)
 
         with open("map.txt", "r") as map_file:
             data = map_file.read()
@@ -93,7 +106,7 @@ class Game:
                         inner_blocks.add(dirt_block)
 
         all_sprites = pygame.sprite.Group()
-        all_sprites.add(inner_blocks, outer_blocks)
+        all_sprites.add(background_sprites, inner_blocks, outer_blocks)
 
         pygame.time.set_timer(spawn_leaf_event, 300)
 
@@ -107,12 +120,23 @@ class Game:
             "right": False
         }
 
+        key_downs = {
+            "s": False,
+            "t": False
+        }
+
         while self.game_running:
             # if mouse_clicks["left"]:
             #     mouse_clicks["left"] = False
             #
             # if mouse_clicks["right"]:
             #     mouse_clicks["right"] = False
+
+            if key_downs["s"]:
+                key_downs["s"] = False
+
+            if key_downs["t"]:
+                key_downs["t"] = False
 
             # t2 = pygame.time.get_ticks()
             # delta_time = (t2 - t1) / 10
@@ -133,10 +157,15 @@ class Game:
                         self.game_running = False
                         self.show_menu()
                     if event.key == K_s:
-                        pass
+                        key_downs["s"] = True
+                    if event.key == K_t:
+                        key_downs["t"] = True
 
                 if event.type == KEYUP:
-                    pass
+                    if event.type == K_s:
+                        key_downs["s"] = False
+                    if event.type == K_t:
+                        key_downs["t"] = False
 
                 if event.type == spawn_leaf_event:
                     leaf = Leaf(outer_blocks)
@@ -184,13 +213,25 @@ class Game:
 
             # DEV only #############################
             if level_editor_func is not None:
-                level_editor_func(mouse_clicks, all_sprites, outer_blocks, inner_blocks)
+                level_editor_func(mouse_clicks, key_downs, all_sprites, outer_blocks, inner_blocks, background_sprites)
             ########################################
 
             pygame.display.flip()
             self.clock.tick(FPS)
 
     def show_level_editor(self):
+        # with open("background.json", "r") as background_file:
+        #     data = json.load(background_file)
+        #
+        #     for obj in data:
+        #         if obj["object"] == "tree":
+        #             sprite = Tree(x=obj["x_coord"], y=obj["y_coord"], width=obj["width"] * UNIT_X,
+        #                           height=obj["height"] * UNIT_Y)
+        #             background_sprites.add(sprite)
+
+        with open("background.json", "r") as background_file:
+            prev_background_data = json.load(background_file)
+
         with open("map.txt", "r") as map_file:
             prev_data = map_file.read()
             prev_data = prev_data.split("\n")
@@ -200,7 +241,7 @@ class Game:
                 tile = list(row)
                 prev_map_data.append(tile)
 
-        def level_editor(mouse_clicks, all_sprites, outer_blocks, inner_blocks):
+        def level_editor(mouse_clicks, key_downs, all_sprites, outer_blocks, inner_blocks, background_sprites):
             pressed_keys = pygame.key.get_pressed()
 
             if mouse_clicks["left"]:
@@ -217,6 +258,11 @@ class Game:
                     inner_blocks.add(dirt)
                     all_sprites.add(dirt)
                     prev_map_data[tile_position[1]][tile_position[0]] = "D"
+                else:
+                    for sprite in background_sprites:
+                        if sprite.rect.collidepoint((mouse_x, mouse_y)):
+                            sprite.rect.centerx = mouse_x
+                            sprite.rect.centery = mouse_y
 
             if mouse_clicks["right"]:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -229,7 +275,8 @@ class Game:
 
                 prev_map_data[tile_position[1]][tile_position[0]] = "0"
 
-            if pressed_keys[K_s]:
+            if key_downs["s"]:
+                # Save tile map data.
                 new_data = []
                 for row_list in prev_map_data:
                     row_string = "".join(row_list)
@@ -238,5 +285,37 @@ class Game:
                 new_map_string = "\n".join(new_data)
                 with open("map.txt", "w") as new_map_file:
                     new_map_file.write(new_map_string)
+
+                # Save background sprites data.
+                new_background_data = []
+
+                for sprite in background_sprites:
+                    new_background_data.append({
+                        "sprite_name": sprite.sprite_name,
+                        "x_coord": sprite.rect.x / UNIT_X,
+                        "y_coord": sprite.rect.y / UNIT_Y,
+                        "width": sprite.rect.width / UNIT_X,
+                        "height": sprite.rect.height / UNIT_Y
+                    })
+
+                # Remove duplicates in new_background_data list.
+                for i, sprite_data in enumerate(new_background_data):
+                    for another_sprite_data in new_background_data[i + 1:]:
+                        if sprite_data == another_sprite_data:
+                            new_background_data.remove(another_sprite_data)
+
+                new_background_json_data = json.dumps(new_background_data, indent=4)
+
+                with open("background.json", "w") as new_background_file:
+                    new_background_file.write(new_background_json_data)
+
+            elif key_downs["t"]:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                width = 300 * UNIT_X
+                height = 300 * UNIT_Y
+                sprite = Tree(x=(mouse_x - (width / 2)), y=(mouse_y - (height / 2)), width=width, height=height)
+                background_sprites.add(sprite)
+                all_sprites.add(sprite)
+                print(background_sprites)
 
         self.start(level_editor_func=level_editor)
