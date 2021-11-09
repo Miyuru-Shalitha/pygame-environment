@@ -17,17 +17,17 @@ class Leaf(pygame.sprite.Sprite):
         self.temp_x_val = 0
         self.x_val_reverse = False
 
-    def update(self, wind_speed):
-        self.rect.y += 5
-        self.rect.x += self.x_change
+    def update(self, delta_time, wind_speed):
+        self.rect.y += 400 * delta_time
+        self.rect.x += self.x_change * delta_time
 
         if self.x_val_reverse:
-            self.temp_x_val += 0.1
-            if self.temp_x_val > 5:
+            self.temp_x_val += 5
+            if self.temp_x_val > 500:
                 self.x_val_reverse = True
         else:
-            self.temp_x_val -= 0.1
-            if self.temp_x_val < -5:
+            self.temp_x_val -= 5
+            if self.temp_x_val < -500:
                 self.x_val_reverse = True
 
-        self.x_change = wind_speed + random.uniform(-1, 1) + self.temp_x_val
+        self.x_change = wind_speed + random.uniform(-100, 100) + self.temp_x_val

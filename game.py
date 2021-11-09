@@ -95,7 +95,18 @@ class Game:
         wind_speed = 0
         reversed_wind = False
 
+        # t1 = pygame.time.get_ticks()
+
         while self.game_running:
+            # t2 = pygame.time.get_ticks()
+            # delta_time = (t2 - t1) / 10
+            # t1 = t2
+            # print("delta time 1", delta_time)
+            # print(f"delta time 2 {self.clock.get_time() / 10}")
+
+            delta_time = self.clock.get_time() / 1000
+            print(delta_time)
+
             for event in pygame.event.get():
                 if event.type == QUIT:
                     self.game_running = False
@@ -133,7 +144,7 @@ class Game:
                     reversed_wind = True
 
             for leaf in leaves:
-                leaf.update(wind_speed)
+                leaf.update(delta_time, wind_speed)
                 self.screen.blit(leaf.image, leaf.rect)
 
                 if leaf.rect.y > SCREEN_SIZE[1]:
