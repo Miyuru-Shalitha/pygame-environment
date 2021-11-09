@@ -2,7 +2,7 @@ import sys
 import random
 import pygame
 from functools import wraps
-from pygame.locals import QUIT, KEYDOWN, KEYUP, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_s
+from pygame.locals import QUIT, KEYDOWN, KEYUP, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, K_s, K_g, K_d
 from config import *
 from button import Button
 from grass import Grass
@@ -99,14 +99,17 @@ class Game:
 
         # t1 = pygame.time.get_ticks()
 
-        is_clicked = False
-        s_pressed = False
+        mouse_clicks = {
+            "left": False,
+            "right": False
+        }
 
         while self.game_running:
-            # if is_clicked:
-            #     is_clicked = False
-            if s_pressed:
-                s_pressed = False
+            # if mouse_clicks["left"]:
+            #     mouse_clicks["left"] = False
+            #
+            # if mouse_clicks["right"]:
+            #     mouse_clicks["right"] = False
 
             # t2 = pygame.time.get_ticks()
             # delta_time = (t2 - t1) / 10
@@ -127,11 +130,10 @@ class Game:
                         self.game_running = False
                         self.show_menu()
                     if event.key == K_s:
-                        s_pressed = True
+                        pass
 
                 if event.type == KEYUP:
-                    if event.key == K_s:
-                        s_pressed = False
+                    pass
 
                 if event.type == spawn_leaf_event:
                     leaf = Leaf(outer_blocks)
@@ -139,11 +141,15 @@ class Game:
 
                 if event.type == MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        is_clicked = True
+                        mouse_clicks["left"] = True
+                    if event.button == 3:
+                        mouse_clicks["right"] = True
 
                 if event.type == MOUSEBUTTONUP:
                     if event.button == 1:
-                        is_clicked = False
+                        mouse_clicks["left"] = False
+                    if event.button == 3:
+                        mouse_clicks["right"] = False
 
             self.screen.fill(BLACK)
 
@@ -175,7 +181,7 @@ class Game:
 
             # DEV only #############################
             if level_editor_func is not None:
-                level_editor_func(is_clicked, s_pressed, all_sprites, outer_blocks, inner_blocks)
+                level_editor_func(mouse_clicks, all_sprites, outer_blocks, inner_blocks)
             ########################################
 
             pygame.display.flip()
@@ -191,18 +197,36 @@ class Game:
                 tile = list(row)
                 prev_map_data.append(tile)
 
-        def level_editor(is_clicked, s_pressed, all_sprites, outer_blocks, inner_blocks):
-            if is_clicked:
+        def level_editor(mouse_clicks, all_sprites, outer_blocks, inner_blocks):
+            pressed_keys = pygame.key.get_pressed()
+
+            if mouse_clicks["left"]:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                tile_position = (mouse_x // TILE_SIZE[0], mouse_y // TILE_SIZE[0])
+
+                if pressed_keys[K_g]:
+                    grass = Grass(x=tile_position[0], y=tile_position[1], width=TILE_SIZE[0], height=TILE_SIZE[0])
+                    outer_blocks.add(grass)
+                    all_sprites.add(grass)
+                    prev_map_data[tile_position[1]][tile_position[0]] = "G"
+                elif pressed_keys[K_d]:
+                    dirt = Dirt(x=tile_position[0], y=tile_position[1], width=TILE_SIZE[0], height=TILE_SIZE[0])
+                    inner_blocks.add(dirt)
+                    all_sprites.add(dirt)
+                    prev_map_data[tile_position[1]][tile_position[0]] = "D"
+
+            if mouse_clicks["right"]:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 tile_position = (mouse_x // TILE_SIZE[0], mouse_y // TILE_SIZE[0])
                 print("Tile", prev_map_data[tile_position[1]][tile_position[0]])
 
-                grass = Grass(x=tile_position[0], y=tile_position[1], width=TILE_SIZE[0], height=TILE_SIZE[0])
-                outer_blocks.add(grass)
-                all_sprites.add(grass)
-                prev_map_data[tile_position[1]][tile_position[0]] = "G"
+                for sprite in all_sprites:
+                    if sprite.rect.collidepoint((mouse_x, mouse_y)):
+                        sprite.kill()
 
-            if s_pressed:
+                prev_map_data[tile_position[1]][tile_position[0]] = "0"
+
+            if pressed_keys[K_s]:
                 new_data = []
                 for row_list in prev_map_data:
                     row_string = "".join(row_list)
