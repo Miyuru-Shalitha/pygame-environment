@@ -105,7 +105,6 @@ class Game:
             # print(f"delta time 2 {self.clock.get_time() / 10}")
 
             delta_time = self.clock.get_time() / 1000
-            print(delta_time)
 
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -119,7 +118,7 @@ class Game:
                         self.show_menu()
 
                 if event.type == spawn_leaf_event:
-                    leaf = Leaf()
+                    leaf = Leaf(outer_blocks)
                     leaves.append(leaf)
 
             self.screen.fill(BLACK)
@@ -144,7 +143,7 @@ class Game:
                     reversed_wind = True
 
             for leaf in leaves:
-                leaf.update(delta_time, wind_speed)
+                leaf.update(delta_time, wind_speed, leaves)
                 self.screen.blit(leaf.image, leaf.rect)
 
                 if leaf.rect.y > SCREEN_SIZE[1]:
