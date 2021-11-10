@@ -11,6 +11,7 @@ from grass import Grass
 from dirt import Dirt
 from leaf import Leaf
 from tree import Tree
+from cloud import Cloud
 
 
 class Game:
@@ -77,6 +78,7 @@ class Game:
         self.game_running = True
 
         spawn_leaf_event = pygame.USEREVENT + 1
+        spawn_cloud_event = pygame.USEREVENT + 2
 
         outer_blocks = pygame.sprite.Group()
         inner_blocks = pygame.sprite.Group()
@@ -109,6 +111,7 @@ class Game:
         all_sprites.add(background_sprites, inner_blocks, outer_blocks)
 
         pygame.time.set_timer(spawn_leaf_event, 300)
+        pygame.time.set_timer(spawn_cloud_event, 2000)
 
         wind_speed = 0
         reversed_wind = False
@@ -167,10 +170,6 @@ class Game:
                     if event.type == K_t:
                         key_downs["t"] = False
 
-                if event.type == spawn_leaf_event:
-                    leaf = Leaf(outer_blocks)
-                    leaves.append(leaf)
-
                 if event.type == MOUSEBUTTONDOWN:
                     if event.button == 1:
                         mouse_clicks["left"] = True
@@ -182,6 +181,14 @@ class Game:
                         mouse_clicks["left"] = False
                     if event.button == 3:
                         mouse_clicks["right"] = False
+
+                if event.type == spawn_leaf_event:
+                    leaf = Leaf(outer_blocks)
+                    leaves.append(leaf)
+
+                if event.type == spawn_cloud_event:
+                    cloud = Cloud()
+                    all_sprites.add(cloud)
 
             self.screen.fill(SKY_COLOR)
 
@@ -304,6 +311,6 @@ class Game:
                 sprite = Tree(x=(mouse_x - (width / 2)), y=(mouse_y - (height / 2)), width=width, height=height)
                 background_sprites.add(sprite)
                 all_sprites.add(sprite)
-                print(background_sprites)
+                # print(background_sprites)
 
         self.start(level_editor_func=level_editor)

@@ -72,11 +72,11 @@ class Tree(pygame.sprite.Sprite):
 
         if self.is_x_change1_reversed:
             self.x_change1 -= random.uniform(0.0, 0.1)
-            if self.x_change1 < -1.5:
+            if self.x_change1 < -1:
                 self.is_x_change1_reversed = False
         else:
             self.x_change1 += random.uniform(0.0, 0.1)
-            if self.x_change1 > 1.5:
+            if self.x_change1 > 1:
                 self.is_x_change1_reversed = True
 
         # Image2
@@ -85,11 +85,11 @@ class Tree(pygame.sprite.Sprite):
 
         if self.is_x_change2_reversed:
             self.x_change2 -= random.uniform(0.0, 0.1)
-            if self.x_change2 < -1.5:
+            if self.x_change2 < -1:
                 self.is_x_change2_reversed = False
         else:
             self.x_change2 += random.uniform(0.0, 0.1)
-            if self.x_change2 > 1.5:
+            if self.x_change2 > 1:
                 self.is_x_change2_reversed = True
 
             # Image3
@@ -98,11 +98,11 @@ class Tree(pygame.sprite.Sprite):
 
             if self.is_x_change3_reversed:
                 self.x_change3 -= random.uniform(0.0, 0.1)
-                if self.x_change3 < -1.5:
+                if self.x_change3 < -1:
                     self.is_x_change3_reversed = False
             else:
                 self.x_change3 += random.uniform(0.0, 0.1)
-                if self.x_change3 > 1.5:
+                if self.x_change3 > 1:
                     self.is_x_change3_reversed = True
 
         # Image4
@@ -111,11 +111,11 @@ class Tree(pygame.sprite.Sprite):
 
         if self.is_x_change4_reversed:
             self.x_change4 -= random.uniform(0.0, 0.1)
-            if self.x_change4 < -1.5:
+            if self.x_change4 < -1:
                 self.is_x_change4_reversed = False
         else:
             self.x_change4 += random.uniform(0.0, 0.1)
-            if self.x_change4 > 1.5:
+            if self.x_change4 > 1:
                 self.is_x_change4_reversed = True
 
         # Image5
@@ -124,11 +124,11 @@ class Tree(pygame.sprite.Sprite):
 
         if self.is_x_change5_reversed:
             self.x_change5 -= random.uniform(0.0, 0.1)
-            if self.x_change5 < -1.5:
+            if self.x_change5 < -1:
                 self.is_x_change5_reversed = False
         else:
             self.x_change5 += random.uniform(0.0, 0.1)
-            if self.x_change5 > 1.5:
+            if self.x_change5 > 1:
                 self.is_x_change5_reversed = True
 
         # Image6
@@ -137,9 +137,9 @@ class Tree(pygame.sprite.Sprite):
 
         if self.is_x_change6_reversed:
             self.x_change6 -= random.uniform(0.0, 0.1)
-            if self.x_change6 < -1.5:
+            if self.x_change6 < -1:
                 self.is_x_change6_reversed = False
         else:
             self.x_change6 += random.uniform(0.0, 0.1)
-            if self.x_change6 > 1.5:
+            if self.x_change6 > 1:
                 self.is_x_change6_reversed = True
