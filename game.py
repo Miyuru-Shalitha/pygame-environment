@@ -183,7 +183,7 @@ class Game:
                     if event.button == 3:
                         mouse_clicks["right"] = False
 
-            self.screen.fill(BLACK)
+            self.screen.fill(SKY_COLOR)
 
             # FPS TEXT #########################################
             text_surface = self.font.render(f"FPS: {round(self.clock.get_fps())}", False, WHITE)
@@ -220,18 +220,6 @@ class Game:
             self.clock.tick(FPS)
 
     def show_level_editor(self):
-        # with open("background.json", "r") as background_file:
-        #     data = json.load(background_file)
-        #
-        #     for obj in data:
-        #         if obj["object"] == "tree":
-        #             sprite = Tree(x=obj["x_coord"], y=obj["y_coord"], width=obj["width"] * UNIT_X,
-        #                           height=obj["height"] * UNIT_Y)
-        #             background_sprites.add(sprite)
-
-        with open("background.json", "r") as background_file:
-            prev_background_data = json.load(background_file)
-
         with open("map.txt", "r") as map_file:
             prev_data = map_file.read()
             prev_data = prev_data.split("\n")
