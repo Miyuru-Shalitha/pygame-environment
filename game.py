@@ -83,6 +83,7 @@ class Game:
         outer_blocks = pygame.sprite.Group()
         inner_blocks = pygame.sprite.Group()
         background_sprites = pygame.sprite.Group()
+        cloud_sprites = pygame.sprite.Group()
         leaves = []
 
         with open("background.json", "r") as background_file:
@@ -188,7 +189,7 @@ class Game:
 
                 if event.type == spawn_cloud_event:
                     cloud = Cloud()
-                    all_sprites.add(cloud)
+                    cloud_sprites.add(cloud)
 
             self.screen.fill(SKY_COLOR)
 
@@ -200,6 +201,10 @@ class Game:
             for entity in all_sprites:
                 entity.update()
                 self.screen.blit(entity.image, entity.rect)
+
+            for cloud_sprite in cloud_sprites:
+                cloud_sprite.update(delta_time)
+                self.screen.blit(cloud_sprite.image, cloud_sprite.rect)
 
             # print(len(leaves))
             if reversed_wind:
