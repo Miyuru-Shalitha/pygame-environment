@@ -311,8 +311,8 @@ class Game:
 
             elif key_downs["t"]:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                width = 300 * UNIT_X
-                height = 300 * UNIT_Y
+                width = 600 * UNIT_X
+                height = 600 * UNIT_Y
                 sprite = Tree(x=(mouse_x - (width / 2)), y=(mouse_y - (height / 2)), width=width, height=height)
                 background_sprites.add(sprite)
                 all_sprites.add(sprite)

@@ -1,16 +1,9 @@
 [
     {
         "sprite_name": "tree",
-        "x_coord": -36.0,
-        "y_coord": 669.0,
-        "width": 300.0,
-        "height": 300.0
-    },
-    {
-        "sprite_name": "tree",
-        "x_coord": 1725.0,
-        "y_coord": 402.0,
-        "width": 300.0,
-        "height": 300.0
+        "x_coord": 42.0,
+        "y_coord": 373.0,
+        "width": 600.0,
+        "height": 600.0
     }
 ]
